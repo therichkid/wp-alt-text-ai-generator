@@ -73,4 +73,6 @@ const processMedia = async (dryRun = false) => {
   stats.log();
 };
 
-processMedia(true).catch(console.error);
+const dryRun = process.argv.includes('--dry-run');
+
+processMedia(dryRun).catch(console.error);
