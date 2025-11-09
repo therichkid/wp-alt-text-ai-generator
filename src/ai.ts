@@ -5,6 +5,16 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
 
+const MAX_RETRIES = 5;
+const RETRY_DELAY_MS = 1000;
+
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const exponentialBackoff = async (attempt: number) => {
+  const delayTime = RETRY_DELAY_MS * Math.pow(2, attempt);
+  await delay(delayTime);
+};
+
 export const generateAltText = async (image: WordPressImage): Promise<string | undefined> => {
   const imageResponse = await fetch(image.url);
   if (!imageResponse.ok) {
@@ -14,31 +24,47 @@ export const generateAltText = async (image: WordPressImage): Promise<string | u
   const imageArrayBuffer = await imageResponse.arrayBuffer();
   const base64Image = Buffer.from(imageArrayBuffer).toString('base64');
 
-  const response = await ai.models.generateContent({
-    model: 'gemini-2.5-flash',
-    contents: [
-      {
-        role: 'user',
-        parts: [
+  let attempt = 0;
+  while (attempt <= MAX_RETRIES) {
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: [
           {
-            text: [
-              'Analysiere dieses Bild.',
-              'Schreibe einen kurzen, beschreibenden, SEO-optimierten und barrierefreien Alt-Text in deutscher Sprache.',
-              `Benutze, wenn möglich, den Titel des Bildes: "${image.title}"`,
-              'Beginne direkt mit dem Text, ohne Anführungszeichen oder Einleitung.',
-              'Der Alt-Text sollte maximal 125 Zeichen lang sein.',
-            ].join(' '),
-          },
-          {
-            inlineData: {
-              mimeType: image.mimeType,
-              data: base64Image,
-            },
+            role: 'user',
+            parts: [
+              {
+                text: [
+                  'Analysiere dieses Bild.',
+                  'Schreibe einen kurzen, beschreibenden, SEO-optimierten und barrierefreien Alt-Text in deutscher Sprache.',
+                  `Benutze, wenn möglich, den Titel des Bildes: "${image.title}"`,
+                  'Beginne direkt mit dem Text, ohne Anführungszeichen oder Einleitung.',
+                  'Der Alt-Text sollte maximal 125 Zeichen lang sein.',
+                ].join(' '),
+              },
+              {
+                inlineData: {
+                  mimeType: image.mimeType,
+                  data: base64Image,
+                },
+              },
+            ],
           },
         ],
-      },
-    ],
-  });
+      });
 
-  return response.text?.trim();
+      return response.text?.trim();
+    } catch (error: unknown) {
+      const isRateLimitError =
+        error instanceof Error && (error.message?.includes('429') || error.message?.includes('RATE_LIMIT_EXCEEDED'));
+
+      if (!isRateLimitError || attempt === MAX_RETRIES) {
+        throw error;
+      }
+
+      attempt++;
+      console.warn(`Rate limit exceeded. Retrying attempt ${attempt} of ${MAX_RETRIES}...`);
+      await exponentialBackoff(attempt);
+    }
+  }
 };
