@@ -26,7 +26,7 @@ class Statistics {
   }
 }
 
-const processMedia = async (dryRun = false) => {
+const processMedia = async (options: { dryRun: boolean; limit?: number }) => {
   const stats = new Statistics();
 
   let page = 1;
@@ -34,7 +34,7 @@ const processMedia = async (dryRun = false) => {
 
   console.log('Start processing WordPress media library...');
 
-  while (page <= totalPages) {
+  while (page <= totalPages && (!options.limit || stats.processedImages < options.limit)) {
     const response = await fetchImages(page);
     totalPages = response.totalPages;
     stats.totalImages += response.images.length;
@@ -42,12 +42,16 @@ const processMedia = async (dryRun = false) => {
     console.log(`Processing page ${page} of ${totalPages}. ${response.images.length} images found.`);
 
     for (const image of response.images) {
+      if (options.limit && stats.processedImages >= options.limit) {
+        break;
+      }
+
       if (image.altText && image.altText !== '') {
         stats.skippedImages++;
         continue;
       }
 
-      if (dryRun) {
+      if (options.dryRun) {
         console.log(`  > DRY RUN: Would generate alt text for image #${image.id} (${image.url})`);
         stats.processedImages++;
         continue;
@@ -73,6 +77,8 @@ const processMedia = async (dryRun = false) => {
   stats.log();
 };
 
-const dryRun = process.argv.includes('--dry-run');
+const dryRun = process.argv.includes('--dry-run') || process.argv.includes('-d');
+const limitIndex = process.argv.findIndex((arg) => arg === '--limit' || arg === '-l');
+const limit = limitIndex !== -1 ? parseInt(process.argv[limitIndex + 1]) : undefined;
 
-processMedia(dryRun).catch(console.error);
+processMedia({ dryRun, limit }).catch(console.error);
