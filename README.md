@@ -41,12 +41,12 @@ WP_APPLICATION_PASSWORD=
 
 To run the tool with hot-reload in dry-run mode (doesn't trigger Gemini API calls or update WordPress):
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 To run the tool once and update alt texts:
 ```bash
-npm run start
+pnpm run start
 ```
 
 ## License
