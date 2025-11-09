@@ -1,0 +1,20 @@
+{
+  "name": "wp-alt-text-ai-generator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --experimental-default-config-file --env-file=.env src/index.ts"
+  },
+  "keywords": [],
+  "author": "Richard Zille",
+  "license": "ISC",
+  "dependencies": {
+    "@google/genai": "^1.29.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.0",
+    "prettier": "^3.6.2"
+  }
+}
