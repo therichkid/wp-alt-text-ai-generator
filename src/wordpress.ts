@@ -17,7 +17,7 @@ const AUTH_HEADER =
   'Basic ' + Buffer.from(`${process.env.WP_USER}:${process.env.WP_APPLICATION_PASSWORD}`).toString('base64');
 
 export const fetchImages = async (page: number): Promise<FetchImagesResponse> => {
-  const url = `${WP_URL}/media?page=${page}&per_page=100&media_type=image&_fields=id,source_url,mime_type,title,alt_text`;
+  const url = `${WP_URL}/media?page=${page}&per_page=100&media_type=image&_fields=id,media_details,source_url,mime_type,title,alt_text`;
 
   const response = await fetch(url);
   if (!response.ok) {
@@ -28,8 +28,8 @@ export const fetchImages = async (page: number): Promise<FetchImagesResponse> =>
   return {
     images: images.map((item: any) => ({
       id: item.id,
-      url: item.source_url,
-      mimeType: item.mime_type,
+      url: item.media_details.sizes.medium?.source_url ?? item.source_url,
+      mimeType: item.media_details.sizes.medium?.mime_type ?? item.mime_type,
       title: item.title?.rendered ?? '',
       altText: item.alt_text,
     })),

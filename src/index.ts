@@ -62,7 +62,7 @@ const processMedia = async (options: { dryRun: boolean; limit?: number }) => {
         if (generatedAltText) {
           await updateImageAltText(image.id, generatedAltText);
           stats.processedImages++;
-          console.log(`  > SUCCESS: Alt text for #${image.id} set: "${generatedAltText.substring(0, 100)}..."`);
+          console.log(`  > SUCCESS: Alt text for #${image.id} set: "${generatedAltText}"`);
         }
       } catch (error) {
         stats.failedImages++;

@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "node --watch --experimental-default-config-file --env-file=.env src/index.ts --dry-run",
-    "start": "node --experimental-default-config-file --env-file=.env src/index.ts --limit 10"
+    "start": "node --experimental-default-config-file --env-file=.env src/index.ts --limit 250"
   },
   "keywords": [],
   "author": "Richard Zille",

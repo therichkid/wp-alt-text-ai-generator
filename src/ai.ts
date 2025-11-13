@@ -37,7 +37,10 @@ export const generateAltText = async (image: WordPressImage): Promise<string | u
                 text: [
                   'Analysiere dieses Bild.',
                   'Schreibe einen kurzen, beschreibenden, SEO-optimierten und barrierefreien Alt-Text in deutscher Sprache.',
-                  `Benutze, wenn möglich, den Titel des Bildes: "${image.title}"`,
+                  'Die Website richtet sich an Nutzer von Cochlea-Implantaten und Menschen mit Hörbeeinträchtigung.',
+                  `Benutze, wenn möglich, den Titel des Bildes: "${image.title}".`,
+                  'Ignoriere den Bildtitel, falls er generisch oder bedeutungslos ist (z.B. "IMG_1234", "default.jpg", "image1.jpg", ...).',
+                  'Falls der Bildtitel relevant und beschreibend ist, kannst du ihn einbeziehen, aber nur, wenn es sinnvoll ist.',
                   'Beginne direkt mit dem Text, ohne Anführungszeichen oder Einleitung.',
                   'Der Alt-Text sollte maximal 125 Zeichen lang sein.',
                 ].join(' '),

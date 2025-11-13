@@ -44,7 +44,7 @@ To run the tool with hot-reload in dry-run mode (doesn't trigger Gemini API call
 pnpm run dev
 ```
 
-To run the tool once and update alt texts with a limit of 10 images:
+To run the tool once and update alt texts with a limit of 250 images:
 ```bash
 pnpm run start
 ```
