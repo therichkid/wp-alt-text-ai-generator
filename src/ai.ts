@@ -1,4 +1,4 @@
-import { GoogleGenAI } from '@google/genai';
+import { ApiError, GoogleGenAI } from '@google/genai';
 import { type WordPressImage } from './wordpress.ts';
 
 const ai = new GoogleGenAI({
@@ -58,16 +58,22 @@ export const generateAltText = async (image: WordPressImage): Promise<string | u
 
       return response.text?.trim();
     } catch (error: unknown) {
-      const isRateLimitError =
-        error instanceof Error && (error.message?.includes('429') || error.message?.includes('RATE_LIMIT_EXCEEDED'));
-
-      if (!isRateLimitError || attempt === MAX_RETRIES) {
-        throw error;
+      const isOverloadError = error instanceof ApiError && error?.status === 503;
+      if (isOverloadError) {
+        console.warn(`Service overloaded. Retrying again in ${RETRY_DELAY_MS / 1000}s...`);
+        await delay(RETRY_DELAY_MS);
+        continue;
       }
 
-      attempt++;
-      console.warn(`Rate limit exceeded. Retrying attempt ${attempt} of ${MAX_RETRIES}...`);
-      await exponentialBackoff(attempt);
+      const isRateLimitError = error instanceof ApiError && error.status === 429;
+      if (isRateLimitError && attempt < MAX_RETRIES) {
+        console.warn(`Rate limit exceeded. Retrying attempt ${attempt + 1} of ${MAX_RETRIES}...`);
+        attempt++;
+        await exponentialBackoff(attempt);
+        continue;
+      }
+
+      throw error;
     }
   }
 };

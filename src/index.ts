@@ -1,6 +1,8 @@
 import { generateAltText } from './ai.ts';
 import { fetchImages, updateImageAltText } from './wordpress.ts';
 
+const STOP_AFTER_ERRORS = 5;
+
 class Statistics {
   totalImages = 0;
   skippedImages = 0;
@@ -67,6 +69,12 @@ const processMedia = async (options: { dryRun: boolean; limit?: number }) => {
       } catch (error) {
         stats.failedImages++;
         console.error(`  > ERROR: Could not process image #${image.id}:`, error);
+
+        if (stats.failedImages >= STOP_AFTER_ERRORS) {
+          console.error(`Exceeded maximum error limit of ${STOP_AFTER_ERRORS}. Stopping processing.`);
+          page = totalPages + 1;
+          break;
+        }
       }
     }
 
