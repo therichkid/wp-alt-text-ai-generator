@@ -6,12 +6,13 @@ const ai = new GoogleGenAI({
 });
 
 const MAX_RETRIES = 5;
-const RETRY_DELAY_MS = 1000;
+const RETRY_DELAY_MS = 3000;
+const MAX_DELAY_MS = 30000;
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const exponentialBackoff = async (attempt: number) => {
-  const delayTime = RETRY_DELAY_MS * Math.pow(2, attempt);
+  const delayTime = Math.min(RETRY_DELAY_MS * Math.pow(2, attempt), MAX_DELAY_MS);
   await delay(delayTime);
 };
 
