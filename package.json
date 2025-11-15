@@ -12,7 +12,8 @@
   "author": "Richard Zille",
   "license": "ISC",
   "dependencies": {
-    "@google/genai": "^1.29.1"
+    "@google/genai": "^1.29.1",
+    "date-fns": "^4.1.0"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",

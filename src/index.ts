@@ -1,3 +1,4 @@
+import { formatDuration, intervalToDuration } from 'date-fns';
 import { generateAltText } from './ai.ts';
 import { fetchImages, updateImageAltText } from './wordpress.ts';
 
@@ -9,22 +10,23 @@ class Statistics {
   processedImages = 0;
   failedImages = 0;
 
-  private startTime: number;
+  private startDate: Date;
 
   constructor() {
-    this.startTime = performance.now();
+    this.startDate = new Date();
   }
 
   log() {
-    const endTime = performance.now();
-    const duration = ((endTime - this.startTime) / 1000).toFixed(2);
+    const endDate = new Date();
+    const duration = intervalToDuration({ start: this.startDate, end: endDate });
+    const formattedDuration = formatDuration(duration);
 
     console.log('Processing statistics:');
     console.log(`  Total images: ${this.totalImages}`);
     console.log(`  Skipped images (with alt text): ${this.skippedImages}`);
     console.log(`  Processed images (alt text generated): ${this.processedImages}`);
     console.log(`  Failed images (errors during processing): ${this.failedImages}`);
-    console.log(`  Total time taken: ${duration} seconds`);
+    console.log(`  Total time taken: ${formattedDuration} seconds`);
   }
 }
 
