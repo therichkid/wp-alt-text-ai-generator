@@ -1,8 +1,9 @@
 import { formatDuration, intervalToDuration } from 'date-fns';
 import { generateAltText } from './ai.ts';
+import { logAltText } from './csv.ts';
 import { fetchImages, updateImageAltText } from './wordpress.ts';
 
-const STOP_AFTER_ERRORS = 5;
+const STOP_AFTER_ERRORS = 2;
 
 class Statistics {
   totalImages = 0;
@@ -52,6 +53,7 @@ const processMedia = async (options: { dryRun: boolean; limit?: number }) => {
 
       if (image.altText && image.altText !== '') {
         stats.skippedImages++;
+        logAltText(image).catch(console.error);
         continue;
       }
 
@@ -66,6 +68,7 @@ const processMedia = async (options: { dryRun: boolean; limit?: number }) => {
         if (generatedAltText) {
           await updateImageAltText(image.id, generatedAltText);
           stats.processedImages++;
+          logAltText(image).catch(console.error);
           console.log(`  > SUCCESS: Alt text for #${image.id} set: "${generatedAltText}"`);
         }
       } catch (error) {

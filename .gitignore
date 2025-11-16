@@ -1,3 +1,4 @@
 .env
 dist
+*image_alt_texts.csv*
 node_modules
