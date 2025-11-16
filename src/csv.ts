@@ -9,7 +9,7 @@ const __dirname = dirname(__filename);
 const CSV_PATH = resolve(__dirname, '../image_alt_texts.csv');
 const HEADER = 'id,url,altText\n';
 
-export const logAltText = async (image: WordPressImage): Promise<void> => {
+export const logAltText = async (image: WordPressImage, altText = image.altText): Promise<void> => {
   try {
     await fs.access(CSV_PATH);
   } catch {
@@ -25,7 +25,7 @@ export const logAltText = async (image: WordPressImage): Promise<void> => {
   });
 
   if (!exists) {
-    const newLine = `${image.id},"=HYPERLINK(""${image.url}"";""${image.title}"")","${image.altText.replace(/"/g, '""')}"\n`;
+    const newLine = `${image.id},"=HYPERLINK(""${image.url}"";""${image.title}"")","${altText.replace(/"/g, '""')}"\n`;
     await fs.appendFile(CSV_PATH, newLine, 'utf8');
   }
 };
